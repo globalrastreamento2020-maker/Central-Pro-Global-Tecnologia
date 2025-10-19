@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Central Pro – Global Tecnologia</title>
+<meta name="description" content="Central Pro - sua central de suporte e gestão de rastreamento" />
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg: radial-gradient(circle at -10% 10%, #050505 0%, #000 60%);
+  --card: linear-gradient(145deg,#0f0f0f,#070707);
+  --accent:#00a8ff;     /* Azul neon */
+  --accent-2:#66d1ff;   /* Azul claro */
+  --glow: rgba(0,168,255,0.20);
+  --muted:#9aa4b2;
+  --glass: rgba(255,255,255,0.04);
+  font-family: 'Orbitron', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0;background:var(--bg);color:whitesmoke}
+body{padding:16px;display:flex;justify-content:center;font-size:15px}
+.wrap{width:100%;max-width:1000px;position:relative}
+
+/* Header */
+header{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 8px 30px var(--glow);display:flex;align-items:center;justify-content:center;color:#061018;font-weight:900;font-size:20px}
+.title{flex:1}
+h1{margin:0;font-size:18px;color:var(--accent);text-shadow:0 0 12px var(--glow)}
+.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+/* Quick links */
+.quick{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin:14px 0}
+.quick a,.quick button.linklike{
+  display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:12px;background:var(--card);
+  text-decoration:none;color:inherit;box-shadow:0 6px 22px rgba(0,0,0,0.6),0 0 22px var(--glow);
+  border:1px solid rgba(0,168,255,0.08);transition:transform .18s,box-shadow .18s; cursor:pointer
+}
+.quick a:hover,.quick button.linklike:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 12px 40px rgba(0,0,0,0.7),0 0 40px var(--glow)}
+.label{font-weight:700;color:var(--accent);font-size:13px}
+.small{font-size:12px;color:var(--muted)}
+
+/* Tabs & cards */
+.tabs{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border-radius:14px;padding:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+.tab-buttons{display:flex;gap:8px;margin-bottom:12px;overflow:auto;padding-bottom:6px}
+.tab-btn{flex:0 0 auto;padding:10px 14px;border-radius:12px;background:transparent;border:1px solid transparent;color:var(--muted);cursor:pointer;font-weight:700}
+.tab-btn.active{background:linear-gradient(120deg, rgba(0,168,255,0.15), rgba(102,209,255,0.06));color:var(--accent);box-shadow:0 6px 20px var(--glow);border:1px solid rgba(0,168,255,0.18)}
+.tab-content{padding:8px}
+.card{background:linear-gradient(145deg,#0e0e0e,#080808);padding:14px;border-radius:12px;box-shadow:0 8px 30px var(--glow);border:1px solid rgba(0,168,255,0.10)}
+
+/* CRM */
+.crm-top{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.search{padding:10px;border-radius:10px;border:none;background:var(--glass);color:inherit;flex:1}
+.filter,.btn{padding:10px;border-radius:10px;border:none;background:var(--glass);color:inherit;cursor:pointer}
+.crm-list{display:flex;flex-direction:column;gap:12px}
+.client{background:linear-gradient(180deg,#0b0b0b,#111);padding:12px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid rgba(0,168,255,0.10);box-shadow:0 6px 20px var(--glow);cursor:pointer}
+.client .meta{display:flex;flex-direction:column}
+.client .name{font-weight:800;color:var(--accent)}
+.client .phone{font-size:13px;color:var(--muted)}
+.client-actions{display:flex;gap:8px}
+.chip{padding:6px 8px;border-radius:8px;background:rgba(0,168,255,0.10);color:var(--accent);font-weight:700}
+
+/* Modal */
+.modal{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:40;opacity:0;pointer-events:none;transition:opacity .18s}
+.modal.show{opacity:1;pointer-events:auto}
+.modal-card{background:linear-gradient(180deg,#121212,#0b0b0b);padding:16px;border-radius:12px;min-width:320px;box-shadow:0 10px 40px var(--glow);max-height:90vh;overflow:auto}
+.device-card{background:linear-gradient(145deg,#111,#0a0a0a);padding:10px;border-radius:10px;margin:8px 0;box-shadow:0 6px 20px var(--glow);display:flex;justify-content:space-between;align-items:center}
+.small-input{padding:8px;border-radius:8px;border:none;background:var(--glass);color:inherit}
+
+/* Notes */
+.notes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.note{padding:12px;border-radius:10px;min-height:100px;position:relative;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+.note .del{position:absolute;top:6px;right:6px;background:transparent;border:none;color:rgba(0,0,0,0.6);font-weight:900;cursor:pointer}
+
+/* Calendar */
+.calendar-wrap{display:flex;flex-direction:column;gap:8px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.day{background:var(--card);padding:8px;border-radius:8px;min-height:80px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+.day .date{position:absolute;top:8px;right:8px;font-size:11px;color:var(--muted)}
+.event{background:linear-gradient(90deg,var(--accent),var(--accent-2));padding:6px 8px;border-radius:8px;color:#071018;font-weight:700;font-size:12px;box-shadow:0 6px 18px var(--glow);margin-top:6px}
+
+/* Login */
+.login-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:100}
+.backdrop{position:absolute;inset:0;background:rgba(4,4,4,0.64);backdrop-filter:blur(6px);transition:all .6s ease}
+.login-card{position:relative;z-index:110;width:92%;max-width:420px;padding:22px;border-radius:14px;background:linear-gradient(135deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));box-shadow:0 20px 60px rgba(0,0,0,0.7),0 0 40px var(--glow);border:1px solid rgba(0,168,255,0.14);transform:translateY(-8px) scale(.98);opacity:0;transition:all .6s cubic-bezier(.2,.9,.2,1)}
+.login-card.show{transform:translateY(0) scale(1);opacity:1}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.login-logo .logo{width:56px;height:56px;border-radius:10px;font-size:18px}
+.login-title{font-size:16px;color:var(--accent);font-weight:800}
+.field{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.input{padding:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:inherit}
+.login-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.btn-primary{padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#071018;font-weight:800;cursor:pointer}
+.link-muted{background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted);padding:8px;border-radius:8px}
+.login-err{color:#ffb3a3;margin-top:8px;font-weight:700}
+.logout-btn{padding:8px 10px;border-radius:8px;border:none;background:#222;color:var(--accent);font-weight:700;cursor:pointer}
+
+/* Links: ícones 3D futuristas */
+.icon3d{
+  display:inline-block;
+  filter: drop-shadow(0 8px 22px rgba(0,168,255,0.25));
+  text-shadow:
+    0 0 8px rgba(0,168,255,0.65),
+    0 0 16px rgba(102,209,255,0.35),
+    0 8px 18px rgba(0,0,0,0.35);
+  transform: translateZ(0);
+}
+.iconlink{
+  display:flex;align-items:center;gap:10px;
+  padding:10px;border-radius:10px;background:var(--card);
+  border:1px solid rgba(0,168,255,0.10);
+  text-decoration:none;color:inherit;
+  box-shadow:0 6px 22px rgba(0,0,0,0.6),0 0 22px var(--glow);
+  transition:transform .18s, box-shadow .18s, border-color .18s;
+}
+.iconlink:hover{ transform: translateY(-4px); box-shadow:0 10px 30px rgba(0,0,0,0.7),0 0 36px var(--glow); border-color: rgba(102,209,255,0.35); }
+
+footer{display:flex;align-items:center;gap:10px;margin-top:14px}
+.whats{background:linear-gradient(90deg,#25D366,#128C7E);padding:10px 14px;border-radius:12px;text-decoration:none;color:white;font-weight:700;box-shadow:0 10px 30px rgba(18,140,126,0.18)}
+@media(max-width:720px){.cal-grid{grid-template-columns:repeat(7,1fr);} .login-card{padding:16px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="appRoot">
+  <header>
+    <div class="logo" id="mainLogo">GT</div>
+    <div class="title">
+      <h1>Central Pro – Global Tecnologia</h1>
+      <div class="lead">Sua central de suporte e gestão de rastreamento</div>
+    </div>
+    <div style="text-align:right">
+      <div id="userArea" style="font-size:13px;color:var(--muted)"></div>
+      <div id="topClock" style="font-family:monospace;font-size:13px;color:var(--muted)"></div>
+    </div>
+  </header>
+
+  <!-- Acessos rápidos -->
+  <section class="quick" aria-label="Acessos rápidos">
+    <a href="https://globalrastreamento.net.br/login" target="_blank"><div class="label">Plataforma</div><div class="small">Acesso ao painel</div></a>
+    <a href="https://globalrastreamento2020-maker.github.io/contrato-e-termo-ades-o-global-rastreamento/" target="_blank"><div class="label">Gerador de Contrato</div><div class="small">Contratos e termos</div></a>
+    <a href="https://globalrastreamento2020-maker.github.io/tratativa/" target="_blank"><div class="label">Tratativa</div><div class="small">Dispositivo sem comunicação</div></a>
+  </section>
+
+  <section class="tabs" id="mainPanel" style="display:none">
+    <div class="tab-buttons" role="tablist">
+      <button class="tab-btn active" data-tab="dash">🏠 Início</button>
+      <button class="tab-btn" data-tab="crm">👥 CRM</button>
+      <button class="tab-btn" data-tab="notes">📝 Notas</button>
+      <button class="tab-btn" data-tab="calendar">📅 Calendário</button>
+      <button class="tab-btn" data-tab="links">🔗 Links</button>
+    </div>
+
+    <!-- DASH -->
+    <div class="tab-content" id="dash">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:800;color:var(--accent);font-size:16px">Central Pro – Global Tecnologia</div>
+            <div style="color:var(--muted);font-size:12px">Painel</div>
+          </div>
+          <div><button class="logout-btn" id="logoutBtn">Sair</button></div>
+        </div>
+        <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+          <div class="card"><div style="font-size:22px;font-weight:900;color:var(--accent)" id="kpiClients">0</div><div style="color:var(--muted);font-size:12px">Total de clientes</div></div>
+          <div class="card"><div style="font-size:22px;font-weight:900;color:var(--accent)" id="kpiDevices">0</div><div style="color:var(--muted);font-size:12px">Total de dispositivos</div></div>
+          <div class="card"><div style="font-weight:800;color:var(--accent)">Próximos eventos</div><div id="kpiEvents" style="margin-top:8px;color:var(--muted)">Nenhum</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRM -->
+    <div class="tab-content" id="crm" style="display:none">
+      <div class="crm-top">
+        <input class="search" id="searchInput" placeholder="Buscar por nome, placa, IMEI, status...">
+        <select class="filter" id="statusFilter">
+          <option value="">Todos os status</option>
+          <option>Ativo</option>
+          <option>Em Teste</option>
+          <option>Cancelado</option>
+        </select>
+        <button class="btn" id="addClientBtn">+ Cliente</button>
+        <button class="btn" id="exportCsvBtn">Exportar CSV</button>
+        <a class="btn" href="https://globalrastreamento2020-maker.github.io/crmglobalrastreamento/" target="_blank" title="Abrir CRM Global Rastreamento">Abrir CRM Global</a>
+        <a class="btn" href="https://globalrastreamento2020-maker.github.io/clienteveiculos/" target="_blank" title="Copiar cadastro de cliente e veículo">Copiar cadastro</a>
+      </div>
+      <div class="crm-list" id="clientList"></div>
+    </div>
+
+    <!-- NOTAS -->
+    <div class="tab-content" id="notes" style="display:none">
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <input id="noteText" class="small-input" placeholder="Nova nota rápida...">
+        <select id="noteColor" class="small-input">
+          <option value="#dfefff">Azul</option>
+          <option value="#fff7cc">Amarelo</option>
+          <option value="#ffdede">Rosa</option>
+          <option value="#dff7e3">Verde</option>
+        </select>
+        <button class="btn" id="addNoteBtn">Adicionar</button>
+        <button class="btn" id="exportNotesBtn">Exportar Notas</button>
+      </div>
+      <div class="notes-grid" id="notesGrid"></div>
+    </div>
+
+    <!-- CALENDÁRIO -->
+    <div class="tab-content" id="calendar" style="display:none">
+      <div class="calendar-wrap">
+        <div class="cal-header" style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <button class="btn" id="prevMonth">◀</button>
+            <span id="monthLabel" style="margin:0 10px;color:var(--accent);font-weight:800"></span>
+            <button class="btn" id="nextMonth">▶</button>
+          </div>
+          <div>
+            <button class="btn" id="todayBtn">Hoje</button>
+            <button class="btn" id="addEventBtn">+ Novo Evento</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div style="margin-top:10px">
+          <h4 style="margin:0;color:var(--accent)">Eventos do dia</h4>
+          <div id="dayEvents" style="margin-top:6px;color:var(--muted)">Nenhum evento.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINKS -->
+    <div class="tab-content" id="links" style="display:none">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
+        
+        <div class="card">
+          <div style="font-weight:900;color:var(--accent);display:flex;align-items:center;gap:8px">
+            <span class="icon3d">💼</span> Administração e Fiscal
+          </div>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+            <a class="iconlink" href="https://www.nfse.gov.br/EmissorNacional/Login" target="_blank"><span class="icon3d">🧾</span> NFSe – Emissor Nacional</a>
+            <a class="iconlink" href="https://www8.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/pgmei.app/Identificacao" target="_blank"><span class="icon3d">🧮</span> Simples Nacional – MEI</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:900;color:var(--accent);display:flex;align-items:center;gap:8px">
+            <span class="icon3d">💬</span> Comunicação
+          </div>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+            <a class="iconlink" href="https://dashboard.smsmarket.com.br/login" target="_blank"><span class="icon3d">💡</span> SMS Market</a>
+            <a class="iconlink" href="https://www.facilitamovel.com.br/index.html" target="_blank"><span class="icon3d">📲</span> Facilita Móvel</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:900;color:var(--accent);display:flex;align-items:center;gap:8px">
+            <span class="icon3d">💳</span> Financeiro
+          </div>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+            <a class="iconlink" href="https://app.cora.com.br/" target="_blank"><span class="icon3d">🏦</span> Cora – Banco PJ</a>
+            <a class="iconlink" href="https://www.asaas.com/login/auth?utm_campaign=institucional&utm_medium=ads&utm_source=google&utm_term=asaas&utm_content=search&gad_source=1&gclid=Cj0KCQjw_-GxBhC1ARIsADGgDjtypKl_2xZMqFFi2vY0AjirC2EI2ZmcYci6I-Ko9g-XlT292QRkRJgaAk7pEALw_wcB&customerSignUpOriginChannel=HOME" target="_blank"><span class="icon3d">💰</span> Asaas</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:900;color:var(--accent);display:flex;align-items:center;gap:8px">
+            <span class="icon3d">🌐</span> Global Tecnologia
+          </div>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+            <a class="iconlink" href="https://globalrastreamento2020-maker.github.io/globaltecnologia/#" target="_blank"><span class="icon3d">🚀</span> Site principal</a>
+            <a class="iconlink" href="https://globalrastreamento2020-maker.github.io/j16ultra/" target="_blank"><span class="icon3d">⚙️</span> Painel J16 Ultra</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:900;color:var(--accent);display:flex;align-items:center;gap:8px">
+            <span class="icon3d">🧠</span> Ferramentas & Admin
+          </div>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+            <a class="iconlink" href="https://formspree.io/forms/mjkalpnv/integration" target="_blank"><span class="icon3d">📨</span> Formspree (Integração)</a>
+            <a class="iconlink" href="https://console.firebase.google.com/project/central-pro-global-tecnologia/authentication/users" target="_blank"><span class="icon3d">🔑</span> Firebase – Usuários</a>
+            <a class="iconlink" href="https://github.com/globalrastreamento2020-maker/globaltecnologia/settings/pages" target="_blank"><span class="icon3d">🧱</span> GitHub Pages – Settings</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </section>
+
+  <footer>
+    <!-- WhatsApp atualizado -->
+    <a href="https://wa.me/5575988515825" class="whats" target="_blank">💬 Suporte WhatsApp</a>
+    <div style="margin-left:auto;color:var(--muted);font-size:13px">© 2025 Global Tecnologia</div>
+  </footer>
+</div>
+
+<!-- Login overlay -->
+<div class="login-wrap" id="loginWrap" style="display:flex">
+  <div class="backdrop" id="loginBackdrop"></div>
+  <div class="login-card show" id="loginCard" role="dialog" aria-modal="true">
+    <div class="login-logo"><div class="logo">GT</div><div><div class="login-title">Central Pro – Global Tecnologia</div><div style="color:var(--muted);font-size:12px">Acesso seguro</div></div></div>
+    <div class="field">
+      <input id="loginUser" class="input" placeholder="E-mail" autocomplete="username">
+      <input id="loginPass" class="input" placeholder="Senha" type="password" autocomplete="current-password">
+    </div>
+    <div class="login-err" id="loginErr" style="display:none">Usuário ou senha incorretos</div>
+    <div class="login-actions">
+      <button class="link-muted" id="createBtn">Criar Acesso</button>
+      <button class="btn-primary" id="loginBtn">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Client Modal -->
+<div class="modal" id="clientModal">
+  <div class="modal-card">
+    <h3 id="modalClientName">Cliente</h3>
+    <div style="display:flex;gap:8px;margin-top:8px;margin-bottom:8px">
+      <input id="editClientName" class="small-input" placeholder="Nome" />
+      <input id="editClientPhone" class="small-input" placeholder="Telefone" />
+      <select id="editClientStatus" class="small-input"><option>Ativo</option><option>Em Teste</option><option>Cancelado</option></select>
+    </div>
+    <div id="devicesContainer"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn" id="addDeviceBtn">+ Dispositivo</button>
+      <button class="btn" id="saveClientBtn">Salvar Cliente</button>
+      <button class="btn" id="deleteClientBtn" style="background:#333;color:var(--accent)">Excluir Cliente</button>
+      <button class="btn" id="closeModalBtn">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Event Modal -->
+<div class="modal" id="eventModal">
+  <div class="modal-card">
+    <h3 id="eventModalTitle">Evento</h3>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+      <input id="evtTitle" class="small-input" placeholder="Título" />
+      <input id="evtDate" type="date" class="small-input" />
+      <textarea id="evtDesc" class="small-input" placeholder="Descrição (opcional)"></textarea>
+      <select id="evtClientSelect" class="small-input"><option value="">Vincular a cliente (opcional)</option></select>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" id="saveEventBtn">Salvar</button>
+        <button class="btn" id="deleteEventBtn" style="background:#333;color:var(--accent)">Excluir</button>
+        <button class="btn" id="closeEventModal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= Firebase + App Script ================= -->
+<script type="module">
+/* Firebase SDK */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { 
+  getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+  onAuthStateChanged, signOut 
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy,
+  doc, updateDoc, deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+/* Config (produção) */
+const firebaseConfig = {
+  apiKey: "AIzaSyC2oh-cdVghwkly1rRmx901x0U0g7U8ARs",
+  authDomain: "central-pro-global-tecnologia.firebaseapp.com",
+  projectId: "central-pro-global-tecnologia",
+  storageBucket: "central-pro-global-tecnologia.firebasestorage.app",
+  messagingSenderId: "93777415891",
+  appId: "1:93777415891:android:d688baf9d09f12e743ce26"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* UI refs */
+const loginWrap = document.getElementById('loginWrap');
+const loginUser = document.getElementById('loginUser');
+const loginPass = document.getElementById('loginPass');
+const loginBtn  = document.getElementById('loginBtn');
+const createBtn = document.getElementById('createBtn');
+const loginErr  = document.getElementById('loginErr');
+const logoutBtn = document.getElementById('logoutBtn');
+const mainPanel = document.getElementById('mainPanel');
+const userArea  = document.getElementById('userArea');
+
+/* KPIs */
+const kpiClients = document.getElementById('kpiClients');
+const kpiDevices = document.getElementById('kpiDevices');
+const kpiEvents  = document.getElementById('kpiEvents');
+
+/* CRM refs */
+const clientListEl   = document.getElementById('clientList');
+const searchInput    = document.getElementById('searchInput');
+const statusFilterEl = document.getElementById('statusFilter');
+const addClientBtn   = document.getElementById('addClientBtn');
+const exportCsvBtn   = document.getElementById('exportCsvBtn');
+
+/* Notes refs */
+const notesGrid      = document.getElementById('notesGrid');
+const noteText       = document.getElementById('noteText');
+const noteColor      = document.getElementById('noteColor');
+const addNoteBtn     = document.getElementById('addNoteBtn');
+const exportNotesBtn = document.getElementById('exportNotesBtn');
+
+/* Calendar refs */
+const calGrid    = document.getElementById('calGrid');
+const monthLabel = document.getElementById('monthLabel');
+const dayEvents  = document.getElementById('dayEvents');
+const prevMonthBtn = document.getElementById('prevMonth');
+const nextMonthBtn = document.getElementById('nextMonth');
+const todayBtn     = document.getElementById('todayBtn');
+const addEventBtn  = document.getElementById('addEventBtn');
+
+/* Client modal refs */
+const clientModal       = document.getElementById('clientModal');
+const editClientName    = document.getElementById('editClientName');
+const editClientPhone   = document.getElementById('editClientPhone');
+const editClientStatus  = document.getElementById('editClientStatus');
+const devicesContainer  = document.getElementById('devicesContainer');
+const closeModalBtn     = document.getElementById('closeModalBtn');
+const saveClientBtn     = document.getElementById('saveClientBtn');
+const deleteClientBtn   = document.getElementById('deleteClientBtn');
+const addDeviceBtn      = document.getElementById('addDeviceBtn');
+
+/* Event modal refs */
+const eventModal        = document.getElementById('eventModal');
+const evtTitle          = document.getElementById('evtTitle');
+const evtDate           = document.getElementById('evtDate');
+const evtDesc           = document.getElementById('evtDesc');
+const evtClientSelect   = document.getElementById('evtClientSelect');
+const closeEventModalBtn= document.getElementById('closeEventModal');
+const saveEventBtn      = document.getElementById('saveEventBtn');
+const deleteEventBtn    = document.getElementById('deleteEventBtn');
+
+/* State */
+let currentUser = null;
+let currentClients = [];
+let currentNotes = [];
+let currentEvents = [];
+let currentClientIndex = null;
+let unsubClients=null, unsubNotes=null, unsubEvents=null, unsubDevices=null;
+
+/* Relógio topo */
+(function initClock(){
+  const el = document.getElementById('topClock');
+  function tick(){
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    el.textContent = `${hh}:${mm}:${ss} — ${now.toLocaleDateString('pt-BR')}`;
+  }
+  tick(); setInterval(tick, 1000);
+})();
+
+/* Auth */
+function showLogin(){ loginWrap.style.display='flex'; mainPanel.style.display='none'; }
+function showApp(user){ loginWrap.style.display='none'; mainPanel.style.display='block'; userArea.textContent = `Logado: ${user.email}`; }
+
+loginBtn.addEventListener('click', async ()=>{
+  try {
+    await signInWithEmailAndPassword(auth, loginUser.value.trim(), loginPass.value.trim());
+    loginErr.style.display='none';
+  } catch(e){
+    loginErr.style.display='block';
+    loginErr.textContent='Usuário ou senha incorretos';
+  }
+});
+createBtn.addEventListener('click', async ()=>{
+  const email = loginUser.value.trim();
+  const pass  = loginPass.value.trim();
+  if(!email || !pass) return alert('Preencha e-mail e senha.');
+  try{
+    await createUserWithEmailAndPassword(auth, email, pass);
+    alert('Conta criada! Faça login.');
+  }catch(e){ alert('Erro ao criar conta: ' + e.message); }
+});
+logoutBtn.addEventListener('click', ()=> signOut(auth));
+
+onAuthStateChanged(auth, (user)=>{
+  if(user){
+    currentUser = user;
+    showApp(user);
+    bindRealtime();
+  } else {
+    currentUser = null;
+    showLogin();
+    unbindRealtime();
+  }
+});
+
+/* Helpers */
+function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+function userCol(path){ return collection(db, 'users', auth.currentUser.uid, path); }
+function userDoc(path){ return doc(db, 'users', auth.currentUser.uid, path); }
+
+/* Bind realtime (dados do usuário) */
+function bindRealtime(){
+  const qClients = query(userCol('clientes'), orderBy('createdAt','desc'));
+  unsubClients = onSnapshot(qClients, async snap=>{
+    currentClients = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+    renderClients();
+    updateKPI();
+    fillClientSelect();
+  });
+
+  const qNotes = query(userCol('notas'), orderBy('createdAt','desc'));
+  unsubNotes = onSnapshot(qNotes, snap=>{
+    currentNotes = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+    renderNotes();
+  });
+
+  const qEvents = query(userCol('eventos'), orderBy('date','asc'));
+  unsubEvents = onSnapshot(qEvents, snap=>{
+    currentEvents = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+    renderCalendar();
+    updateKPI();
+  });
+}
+function unbindRealtime(){
+  unsubClients && unsubClients(); unsubClients=null;
+  unsubNotes && unsubNotes();     unsubNotes=null;
+  unsubEvents && unsubEvents();   unsubEvents=null;
+  unsubDevices && unsubDevices(); unsubDevices=null;
+}
+
+/* Tabs */
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${name}"]`).classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+  document.getElementById(name).style.display='block';
+  if(name==='crm') renderClients();
+  if(name==='calendar') renderCalendar();
+  if(name==='dash') updateKPI();
+}
+document.querySelectorAll('.tab-btn').forEach(btn=> btn.addEventListener('click', ()=> switchTab(btn.dataset.tab)));
+
+/* KPIs */
+async function updateKPI(){
+  kpiClients.textContent = String(currentClients.length);
+  let totalDevices = 0;
+  await Promise.all(currentClients.map(async (c)=>{
+    const subSnap = await getDocs(userCol(`clientes/${c.id}/dispositivos`));
+    totalDevices += subSnap.size;
+  }));
+  kpiDevices.textContent = String(totalDevices);
+
+  const upcoming = [...currentEvents]
+    .filter(e=> new Date(e.date) >= new Date())
+    .sort((a,b)=> new Date(a.date)-new Date(b.date))
+    .slice(0,3);
+  kpiEvents.innerHTML = upcoming.length
+    ? upcoming.map(e=>`<div style="margin-bottom:6px">${e.date} — ${escapeHtml(e.title)}${e.clientName? ' — '+escapeHtml(e.clientName):''}</div>`).join('')
+    : 'Nenhum';
+}
+
+/* CRM */
+function renderClients(filterText=''){
+  if(!clientListEl) return;
+  const statusFilter = (statusFilterEl?.value || '').toLowerCase();
+  const q = (filterText||'').trim().toLowerCase();
+  clientListEl.innerHTML='';
+
+  currentClients.forEach((c,idx)=>{
+    const matches = !q
+      || (c.name||'').toLowerCase().includes(q)
+      || (c.phone||'').toLowerCase().includes(q);
+    if(!matches) return;
+    if(statusFilter && (c.status||'').toLowerCase()!==statusFilter) return;
+
+    const div = document.createElement('div');
+    div.className='client';
+    div.innerHTML = `
+      <div class="meta">
+        <span class="name">${escapeHtml(c.name||'')}</span>
+        <span class="phone">${escapeHtml(c.phone||'')}</span>
+      </div>
+      <div class='client-actions'>
+        <div class='chip'>${escapeHtml(c.status||'---')}</div>
+        <button class='btn' data-idx='${idx}'>Abrir</button>
+      </div>`;
+    div.querySelector('button').addEventListener('click', (ev)=>{ ev.stopPropagation(); openClientModal(idx); });
+    clientListEl.appendChild(div);
+  });
+}
+searchInput?.addEventListener('input', (e)=> renderClients(e.target.value));
+statusFilterEl?.addEventListener('change', ()=> renderClients(searchInput?searchInput.value:''));
+
+addClientBtn?.addEventListener('click', async ()=>{
+  const name = prompt('Nome do cliente'); if(!name) return;
+  const phone = prompt('Telefone') || '';
+  const status = prompt('Status (Ativo, Em Teste, Cancelado)','Ativo') || 'Ativo';
+  try{
+    await addDoc(userCol('clientes'), { name, phone, status, createdAt: new Date() });
+    alert('Cliente adicionado');
+  }catch(e){ alert('Erro ao adicionar cliente: ' + e.message); }
+});
+
+/* Export CSV */
+exportCsvBtn?.addEventListener('click', async ()=>{
+  let csv = 'Nome,Telefone,Status,Dispositivos\n';
+  for(const c of currentClients){
+    const subSnap = await getDocs(userCol(`clientes/${c.id}/dispositivos`));
+    const devices = [];
+    subSnap.forEach(d=>{
+      const dv = d.data();
+      devices.push(`${dv.plate||''}|${dv.imei||''}|${dv.chip||''}`);
+    });
+    csv += `"${(c.name||'').replaceAll('"','""')}","${(c.phone||'').replaceAll('"','""')}","${(c.status||'').replaceAll('"','""')}","${devices.join(';').replaceAll('"','""')}"\n`;
+  }
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'clients_devices.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* Modal Cliente + Dispositivos */
+function openClientModal(idx){
+  currentClientIndex = idx;
+  const c = currentClients[idx]; if(!c) return;
+
+  document.getElementById('modalClientName').textContent = c.name || 'Cliente';
+  editClientName.value = c.name || '';
+  editClientPhone.value = c.phone || '';
+  editClientStatus.value = c.status || 'Ativo';
+
+  unsubDevices && unsubDevices();
+  unsubDevices = onSnapshot(userCol(`clientes/${c.id}/dispositivos`), snap=>{
+    const devs = []; snap.forEach(d=> devs.push({ id:d.id, ...d.data() }));
+    renderDevices(devs);
+  });
+  clientModal.classList.add('show');
+}
+closeModalBtn?.addEventListener('click', ()=>{
+  clientModal.classList.remove('show');
+  unsubDevices && unsubDevices(); unsubDevices=null;
+});
+saveClientBtn?.addEventListener('click', async ()=>{
+  const c = currentClients[currentClientIndex]; if(!c) return;
+  try{
+    await updateDoc(userDoc(`clientes/${c.id}`), {
+      name: editClientName.value.trim() || c.name,
+      phone: editClientPhone.value.trim() || '',
+      status: editClientStatus.value || 'Ativo',
+      updatedAt: new Date()
+    });
+    clientModal.classList.remove('show');
+    unsubDevices && unsubDevices(); unsubDevices=null;
+  }catch(e){ alert('Erro ao salvar: ' + e.message); }
+});
+deleteClientBtn?.addEventListener('click', async ()=>{
+  const c = currentClients[currentClientIndex]; if(!c) return;
+  if(!confirm('Excluir cliente?')) return;
+  try{
+    await deleteDoc(userDoc(`clientes/${c.id}`));
+    clientModal.classList.remove('show');
+    unsubDevices && unsubDevices(); unsubDevices=null;
+  }catch(e){ alert('Erro ao excluir: ' + e.message); }
+});
+
+function renderDevices(devices){
+  devicesContainer.innerHTML='';
+  if(!devices || devices.length===0){
+    devicesContainer.innerHTML = '<div style="color:var(--muted)">Nenhum dispositivo</div>';
+    return;
+  }
+  devices.forEach(d=>{
+    const div = document.createElement('div');
+    div.className='device-card';
+    div.innerHTML = `
+      <div><strong>${escapeHtml(d.plate||'')}</strong>
+        <div style='font-size:12px;color:var(--muted)'>IMEI: ${escapeHtml(d.imei||'')} — ${escapeHtml(d.chip||'')}</div>
+      </div>
+      <div style='display:flex;gap:8px'>
+        <button class='btn' data-edit='1'>Editar</button>
+        <button class='btn' style='background:#333;color:var(--accent)' data-del='1'>Excluir</button>
+      </div>`;
+    div.querySelector('[data-edit]').addEventListener('click', async ()=>{
+      const plate = prompt('Placa', d.plate||'');
+      const imei  = prompt('IMEI', d.imei||'');
+      const chip  = prompt('Operadora/Chip', d.chip||'');
+      if(!plate || !imei) return;
+      const c = currentClients[currentClientIndex];
+      await updateDoc(userDoc(`clientes/${c.id}/dispositivos/${d.id}`), { plate, imei, chip, updatedAt: new Date() });
+    });
+    div.querySelector('[data-del]').addEventListener('click', async ()=>{
+      if(!confirm('Remover dispositivo?')) return;
+      const c = currentClients[currentClientIndex];
+      await deleteDoc(userDoc(`clientes/${c.id}/dispositivos/${d.id}`));
+    });
+    devicesContainer.appendChild(div);
+  });
+}
+addDeviceBtn?.addEventListener('click', async ()=>{
+  const c = currentClients[currentClientIndex]; if(!c) return;
+  const plate = prompt('Placa do veículo'); const imei = prompt('IMEI'); const chip = prompt('Operadora/Chip');
+  if(!plate || !imei) return alert('Placa e IMEI são obrigatórios');
+  await addDoc(userCol(`clientes/${c.id}/dispositivos`), { plate, imei, chip, createdAt: new Date() });
+});
+
+/* Notas */
+function renderNotes(){
+  if(!notesGrid) return;
+  notesGrid.innerHTML='';
+  if(currentNotes.length===0){ notesGrid.textContent='Nenhuma nota.'; return; }
+  currentNotes.forEach(n=>{
+    const el = document.createElement('div');
+    el.className='note';
+    el.style.background = n.color || '#dfefff';
+    const dt = n.createdAt?.toDate ? n.createdAt.toDate() : new Date(n.createdAt);
+    el.innerHTML = `
+      <button class='del' title='Excluir'>&times;</button>
+      <div style='white-space:pre-wrap'>${escapeHtml(n.text||'')}</div>
+      <div style='position:absolute;bottom:8px;right:10px;font-size:11px;color:#1a2740;font-weight:700'>${dt.toLocaleString('pt-BR')}</div>`;
+    el.querySelector('.del').addEventListener('click', async ()=>{
+      if(!confirm('Remover nota?')) return;
+      await deleteDoc(userDoc(`notas/${n.id}`));
+    });
+    notesGrid.appendChild(el);
+  });
+}
+addNoteBtn?.addEventListener('click', async ()=>{
+  const text = noteText.value.trim(); const color = noteColor.value;
+  if(!text) return alert('Digite a nota');
+  await addDoc(userCol('notas'), { text, color, createdAt: new Date() });
+  noteText.value='';
+});
+exportNotesBtn?.addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(currentNotes, null, 2)], {type:'application/json'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='notes_backup.json'; a.click(); URL.revokeObjectURL(url);
+});
+
+/* Calendário / Eventos */
+let now = new Date(); let viewYear = now.getFullYear(); let viewMonth = now.getMonth();
+
+function renderCalendar(){
+  if(!calGrid) return;
+  calGrid.innerHTML='';
+  const dt = new Date(viewYear, viewMonth, 1);
+  monthLabel.textContent = dt.toLocaleString('pt-BR',{month:'long', year:'numeric'}).replace(/^./,c=>c.toUpperCase());
+
+  const weekDays = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  weekDays.forEach(d=>{ const h=document.createElement('div'); h.style.opacity=0.7; h.style.fontSize='12px'; h.textContent=d; calGrid.appendChild(h); });
+
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+  for(let i=0;i<firstDay;i++){ calGrid.appendChild(document.createElement('div')) }
+
+  for(let d=1; d<=daysInMonth; d++){
+    const cell = document.createElement('div'); cell.className='day';
+    const date = new Date(viewYear, viewMonth, d); const iso = date.toISOString().slice(0,10);
+    const dateLabel = document.createElement('div'); dateLabel.className='date'; dateLabel.textContent=d; cell.appendChild(dateLabel);
+    const dayEventsFor = currentEvents.filter(e=>e.date===iso);
+    dayEventsFor.slice(0,3).forEach(ev=>{
+      const evEl = document.createElement('div'); evEl.className='event';
+      evEl.textContent = `${ev.title}${ev.clientName? ' — '+ev.clientName:''}`;
+      evEl.addEventListener('click', (evc)=>{ evc.stopPropagation(); openEventModal(ev.id); });
+      cell.appendChild(evEl);
+    });
+    cell.addEventListener('click', ()=>{ showEventsForDay(iso); });
+    calGrid.appendChild(cell);
+  }
+  showEventsForDay(new Date().toISOString().slice(0,10));
+}
+function showEventsForDay(iso){
+  if(!dayEvents) return;
+  const dayEv = currentEvents.filter(e=>e.date===iso);
+  dayEvents.innerHTML='';
+  if(dayEv.length===0){ dayEvents.textContent='Nenhum evento.'; return; }
+  dayEv.forEach(e=>{
+    const el = document.createElement('div'); el.className='event'; el.style.display='flex'; el.style.justifyContent='space-between';
+    el.innerHTML = `<div style="flex:1">${escapeHtml(e.title)}<div style='font-size:12px;color:#071018;opacity:0.85'>${escapeHtml(e.desc||'')}</div></div>`;
+    const actions = document.createElement('div'); actions.style.marginLeft='8px';
+    const edt = document.createElement('button'); edt.className='btn'; edt.textContent='Editar'; edt.style.padding='6px 8px'; edt.addEventListener('click', ()=>openEventModal(e.id));
+    actions.appendChild(edt); el.appendChild(actions); dayEvents.appendChild(el);
+  });
+}
+prevMonthBtn?.addEventListener('click', ()=>{ viewMonth--; if(viewMonth<0){ viewMonth=11; viewYear-- } renderCalendar(); });
+nextMonthBtn?.addEventListener('click', ()=>{ viewMonth++; if(viewMonth>11){ viewMonth=0; viewYear++ } renderCalendar(); });
+todayBtn?.addEventListener('click', ()=>{ now=new Date(); viewYear=now.getFullYear(); viewMonth=now.getMonth(); renderCalendar(); });
+addEventBtn?.addEventListener('click', ()=> openEventModal());
+
+function fillClientSelect(){
+  if(!evtClientSelect) return;
+  evtClientSelect.innerHTML = '<option value="">Vincular a cliente (opcional)</option>';
+  currentClients.forEach(c=>{ const opt=document.createElement('option'); opt.value=c.id; opt.textContent=c.name; evtClientSelect.appendChild(opt); });
+}
+function openEventModal(id){
+  window.editingEventId = id || null;
+  fillClientSelect();
+  if(id){
+    const ev = currentEvents.find(e=>e.id===id); if(!ev) return;
+    evtTitle.value = ev.title || '';
+    evtDate.value  = ev.date || new Date().toISOString().slice(0,10);
+    evtDesc.value  = ev.desc || '';
+    evtClientSelect.value = ev.clientId || '';
+    deleteEventBtn.style.display='inline-block';
+  } else {
+    evtTitle.value=''; evtDate.value=new Date().toISOString().slice(0,10);
+    evtDesc.value='';  evtClientSelect.value='';
+    deleteEventBtn.style.display='none';
+  }
+  eventModal.classList.add('show');
+}
+closeEventModalBtn?.addEventListener('click', ()=> eventModal.classList.remove('show'));
+saveEventBtn?.addEventListener('click', async ()=>{
+  const title = (evtTitle.value||'').trim(); const date = evtDate.value; const desc = (evtDesc.value||'').trim();
+  const clientId = evtClientSelect.value || '';
+  if(!title || !date) return alert('Preencha título e data');
+  try{
+    if(window.editingEventId){
+      const e = currentEvents.find(x=>x.id===window.editingEventId);
+      await updateDoc(userDoc(`eventos/${e.id}`), { title, date, desc, clientId, clientName: clientId? (currentClients.find(c=>c.id===clientId)?.name || '') : '' });
+    } else {
+      await addDoc(userCol('eventos'), { title, date, desc, clientId, clientName: clientId? (currentClients.find(c=>c.id===clientId)?.name || '') : '', createdAt:new Date() });
+    }
+    eventModal.classList.remove('show');
+  }catch(err){ alert('Erro ao salvar evento: ' + err.message); }
+});
+deleteEventBtn?.addEventListener('click', async ()=>{
+  if(!window.editingEventId) return; if(!confirm('Excluir evento?')) return;
+  await deleteDoc(userDoc(`eventos/${window.editingEventId}`));
+  eventModal.classList.remove('show');
+});
+
+/* Inicializar na aba de Início */
+switchTab('dash');
+</script>
+</body>
+</html>
